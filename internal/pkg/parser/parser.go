@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"net/http/httputil"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/SakiiR/ReduceRequest/internal/pkg/config"
 )
 
@@ -26,13 +28,13 @@ func (parser *Parser) Init() error {
 
 	req, err := http.ReadRequest(buf)
 	if err != nil {
-		fmt.Println(fmt.Sprintf("Failed to read request file: '%s'", err))
+		logrus.Warn("Failed to read request file: '%s'", err)
 		return err
 	}
 
 	body, err := ioutil.ReadAll(buf)
 	if err != nil {
-		fmt.Println(fmt.Sprintf("Failed to read body: '%s'", err))
+		logrus.Warn("Failed to read body: '%s'", err)
 		return err
 	}
 
@@ -64,7 +66,7 @@ func (parser *Parser) Init() error {
 func (parser *Parser) Do(request *http.Request) (*http.Response, error) {
 	resp, err := parser.Client.Do(request)
 	if err != nil {
-		fmt.Println(fmt.Sprintf("Failed to communicate with the server: '%s'", err))
+		logrus.Warn("Failed to communicate with the server: '%s'", err)
 		return nil, err
 	}
 
@@ -77,7 +79,7 @@ func (parser *Parser) Do(request *http.Request) (*http.Response, error) {
 func DumpRequestToStdout(request *http.Request) error {
 	data, err := httputil.DumpRequest(request, true)
 	if err != nil {
-		fmt.Println(fmt.Sprintf("Failed to dump request: %s", err))
+		logrus.Warn("Failed to dump request: %s", err)
 		return err
 	}
 

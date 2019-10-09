@@ -7,6 +7,8 @@ import (
 	"net/url"
 	"os"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/SakiiR/ReduceRequest/internal/pkg/config"
 	rparser "github.com/SakiiR/ReduceRequest/internal/pkg/parser"
 	"github.com/SakiiR/ReduceRequest/internal/pkg/reducer"
@@ -32,11 +34,17 @@ func main() {
 	proxyStr := parser.String("x", "http-proxy", &argparse.Options{Required: false, Help: "HTTP proxy to send the requests through"})
 	forceSSL := parser.Flag("s", "ssl", &argparse.Options{Required: false, Help: "Forces SSL"})
 	k := parser.Flag("k", "disable-check-cert", &argparse.Options{Required: false, Help: "Disable SSL cert checks"})
+	v := parser.Flag("v", "verbose", &argparse.Options{Required: false, Help: "Add debug output"})
 
 	err := parser.Parse(os.Args)
 	if err != nil {
 		fmt.Print(parser.Usage(err))
 		return
+	}
+
+	logrus.SetLevel(logrus.InfoLevel)
+	if *v {
+		logrus.SetLevel(logrus.DebugLevel)
 	}
 
 	// Configure HTTP Client Transport configuration
@@ -54,6 +62,7 @@ func main() {
 
 	p := rparser.Parser{Config: cfg}
 
+	logrus.Debug("Initializing ...")
 	p.Init()
 
 	reducer.ReduceRequest(&p)
