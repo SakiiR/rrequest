@@ -95,11 +95,10 @@ func reduceCookies(request *http.Request, parser *parser.Parser) http.Request {
 // ReduceRequest reduces request
 func ReduceRequest(parser *parser.Parser) (*http.Request, error) {
 	r := *parser.Request
-	// TODO: iterate over URI parameters
 	r = reduceURIParameters(&r, parser)
 	r = reduceHeaders(&r, parser)
 	r = reduceCookies(&r, parser)
-	// TODO: iterate over data parameters if form
+	// TODO: iterate over form parameters if form
 	// TODO: iterate over json parameters if json
 	// TODO: iterate over xml parameters if xml
 	DumpRequestToStdout(&r)
