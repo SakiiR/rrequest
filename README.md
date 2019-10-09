@@ -27,6 +27,6 @@ Arguments:
 
 ## Install
 
-Download release here: [https://github.com/SakiiR/rrequest/releases](https://github.com/SakiiR/ReduceRequest/releases)
+Download release here: [/releases](/releases)
 
 Copy the binary in a path within \$PATH: (e.g. `/usr/local/bin/rrequest`)
