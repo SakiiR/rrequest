@@ -24,3 +24,9 @@ Arguments:
   -s  --ssl                 Forces SSL
   -k  --disable-check-cert  Disable SSL cert checks
 ```
+
+## Install
+
+Download release here: [https://github.com/SakiiR/ReduceRequest/releases](https://github.com/SakiiR/ReduceRequest/releases)
+
+Copy the binary in a path within \$PATH: (e.g. `/usr/local/bin/rrequest`)
