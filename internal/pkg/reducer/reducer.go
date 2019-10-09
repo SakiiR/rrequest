@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httputil"
-	"reflect"
 	"strings"
 
 	"github.com/SakiiR/ReduceRequest/internal/pkg/parser"
@@ -20,9 +19,9 @@ func reduceURIParameters(request *http.Request, parser *parser.Parser) http.Requ
 
 		status, _ := validateResponse(parser.InitialResponse, request, parser)
 		if status == true {
-			fmt.Println(fmt.Sprintf("Ok, parameter %s is useless", key))
+			fmt.Println(fmt.Sprintf("Ok, parameter %s hasn't impact on response", key))
 		} else {
-			fmt.Println(fmt.Sprintf("Ok, parameter %s is usefull", key))
+			fmt.Println(fmt.Sprintf("Ok, parameter %s has impact on response", key))
 			for _, value := range values {
 				params.Add(key, value)
 			}
@@ -42,10 +41,10 @@ func reduceHeaders(request *http.Request, parser *parser.Parser) http.Request {
 
 		status, _ := validateResponse(parser.InitialResponse, request, parser)
 		if status == true {
-			fmt.Println(fmt.Sprintf("Ok, header %s is useless", key))
+			fmt.Println(fmt.Sprintf("Ok, header %s hasn't impact on response", key))
 		} else {
 
-			fmt.Println(fmt.Sprintf("Ok, header %s is usefull", key))
+			fmt.Println(fmt.Sprintf("Ok, header %s has impact on response", key))
 			for _, value := range values {
 				request.Header.Add(key, value)
 			}
@@ -82,10 +81,11 @@ func reduceCookies(request *http.Request, parser *parser.Parser) http.Request {
 
 		status, _ := validateResponse(parser.InitialResponse, request, parser)
 		if status == true {
-			fmt.Println(fmt.Sprintf("Ok, cookie %s is useless", cookie.Name))
+			fmt.Println(fmt.Sprintf("Ok, cookie %s hasn't impact on response", cookie.Name))
 		} else {
-			fmt.Println(fmt.Sprintf("Ok, cookie %s is usefull", cookie.Name))
+			fmt.Println(fmt.Sprintf("Ok, cookie %s has an impact on response", cookie.Name))
 			cookie.Value = valueSave
+			request.Header.Set("Cookie", serializeCookies(cookies))
 		}
 	}
 
@@ -96,12 +96,15 @@ func reduceCookies(request *http.Request, parser *parser.Parser) http.Request {
 func ReduceRequest(parser *parser.Parser) (*http.Request, error) {
 	r := *parser.Request
 	r = reduceURIParameters(&r, parser)
-	r = reduceHeaders(&r, parser)
 	r = reduceCookies(&r, parser)
+	r = reduceHeaders(&r, parser)
 	// TODO: iterate over form parameters if form
 	// TODO: iterate over json parameters if json
 	// TODO: iterate over xml parameters if xml
+	fmt.Println()
+	fmt.Println("```")
 	DumpRequestToStdout(&r)
+	fmt.Println("```")
 	return nil, nil
 }
 
@@ -138,7 +141,7 @@ func validateResponse(initialResponse *http.Response, request *http.Request, par
 		return false, err
 	}
 
-	if reflect.DeepEqual(data1, data2) == false {
+	if len(data1) != len(data2) {
 		return false, nil
 	}
 
