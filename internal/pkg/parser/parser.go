@@ -2,7 +2,9 @@ package parser
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/http/httputil"
 
@@ -15,6 +17,7 @@ type Parser struct {
 	Request         *http.Request
 	Client          *http.Client
 	InitialResponse *http.Response
+	Body            []byte
 }
 
 // Init parse the parser request file and store the request
@@ -27,6 +30,15 @@ func (parser *Parser) Init() error {
 		return err
 	}
 
+	body, err := ioutil.ReadAll(buf)
+	if err != nil {
+		fmt.Println(fmt.Sprintf("Failed to read body: '%s'", err))
+		return err
+	}
+
+	req.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+
+	parser.Body = body
 	req.RequestURI = ""
 	req.URL.Scheme = "http"
 	req.URL.Host = req.Host
@@ -39,6 +51,7 @@ func (parser *Parser) Init() error {
 	if parser.Config.Transport != nil {
 		parser.Client = &http.Client{Transport: parser.Config.Transport}
 	}
+
 	parser.InitialResponse, err = parser.Do(parser.Request)
 	if err != nil {
 		return err
@@ -54,12 +67,14 @@ func (parser *Parser) Do(request *http.Request) (*http.Response, error) {
 		fmt.Println(fmt.Sprintf("Failed to communicate with the server: '%s'", err))
 		return nil, err
 	}
+
+	request.Body = ioutil.NopCloser(bytes.NewBuffer(parser.Body))
+
 	return resp, nil
 }
 
 // DumpRequestToStdout dumps the specified request to stdout
 func DumpRequestToStdout(request *http.Request) error {
-
 	data, err := httputil.DumpRequest(request, true)
 	if err != nil {
 		fmt.Println(fmt.Sprintf("Failed to dump request: %s", err))

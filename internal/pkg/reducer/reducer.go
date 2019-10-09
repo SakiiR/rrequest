@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httputil"
+	"reflect"
+	"strings"
 
 	"github.com/SakiiR/ReduceRequest/internal/pkg/parser"
 )
@@ -20,6 +22,7 @@ func reduceURIParameters(request *http.Request, parser *parser.Parser) http.Requ
 		if status == true {
 			fmt.Println(fmt.Sprintf("Ok, parameter %s is useless", key))
 		} else {
+			fmt.Println(fmt.Sprintf("Ok, parameter %s is usefull", key))
 			for _, value := range values {
 				params.Add(key, value)
 			}
@@ -41,6 +44,8 @@ func reduceHeaders(request *http.Request, parser *parser.Parser) http.Request {
 		if status == true {
 			fmt.Println(fmt.Sprintf("Ok, header %s is useless", key))
 		} else {
+
+			fmt.Println(fmt.Sprintf("Ok, header %s is usefull", key))
 			for _, value := range values {
 				request.Header.Add(key, value)
 			}
@@ -51,7 +56,38 @@ func reduceHeaders(request *http.Request, parser *parser.Parser) http.Request {
 	return *request
 }
 
+func serializeCookies(cookies []*http.Cookie) string {
+
+	cookiesStr := make([]string, len(cookies))
+	for _, cookie := range cookies {
+		if cookie.Value != "" {
+			cookiesStr = append(cookiesStr, fmt.Sprintf("%s=%s", cookie.Name, cookie.Value))
+		}
+	}
+
+	str := strings.Join(cookiesStr, ";")
+	str = strings.Trim(str, ";")
+
+	return str
+}
+
 func reduceCookies(request *http.Request, parser *parser.Parser) http.Request {
+	cookies := request.Cookies()
+
+	for _, cookie := range cookies {
+		valueSave := cookie.Value
+		cookie.Value = ""
+
+		request.Header.Set("Cookie", serializeCookies(cookies))
+
+		status, _ := validateResponse(parser.InitialResponse, request, parser)
+		if status == true {
+			fmt.Println(fmt.Sprintf("Ok, cookie %s is useless", cookie.Name))
+		} else {
+			fmt.Println(fmt.Sprintf("Ok, cookie %s is usefull", cookie.Name))
+			cookie.Value = valueSave
+		}
+	}
 
 	return *request
 }
@@ -91,19 +127,19 @@ func validateResponse(initialResponse *http.Response, request *http.Request, par
 		return false, err
 	}
 
-	data1, err := httputil.DumpResponse(response, true)
+	data1, err := httputil.DumpResponse(initialResponse, true)
 	if err != nil {
-		fmt.Println(fmt.Sprintf("Failed to dump response: %s", err))
+		fmt.Println(fmt.Sprintf("Failed to dump response 1: %s", err))
 		return false, err
 	}
 
-	data2, err := httputil.DumpResponse(initialResponse, true)
+	data2, err := httputil.DumpResponse(response, true)
 	if err != nil {
-		fmt.Println(fmt.Sprintf("Failed to dump response: %s", err))
+		fmt.Println(fmt.Sprintf("Failed to dump response 2: %s", err))
 		return false, err
 	}
 
-	if len(data1) != len(data2) {
+	if reflect.DeepEqual(data1, data2) == false {
 		return false, nil
 	}
 
