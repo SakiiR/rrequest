@@ -39,17 +39,20 @@ func reduceHeaders(request *http.Request, parser *parser.Parser) http.Request {
 	headers := request.Header
 	for key, values := range headers {
 
-		request.Header.Del(key)
+		if key != "Content-Length" {
+			request.Header.Del(key)
 
-		status, _ := validateResponse(parser.InitialResponse, request, parser)
-		if status == true {
-			logrus.Info(fmt.Sprintf("Ok, header %s hasn't impact on response", key))
-		} else {
+			status, _ := validateResponse(parser.InitialResponse, request, parser)
+			if status == true {
+				logrus.Info(fmt.Sprintf("Ok, header %s hasn't impact on response", key))
+			} else {
 
-			logrus.Info(fmt.Sprintf("Ok, header %s has impact on response", key))
-			for _, value := range values {
-				request.Header.Add(key, value)
+				logrus.Info(fmt.Sprintf("Ok, header %s has impact on response", key))
+				for _, value := range values {
+					request.Header.Add(key, value)
+				}
 			}
+
 		}
 
 	}

@@ -4,9 +4,11 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/http/httputil"
+	"strconv"
 
 	"github.com/sirupsen/logrus"
 
@@ -34,11 +36,16 @@ func (parser *Parser) Init() error {
 
 	body, err := ioutil.ReadAll(buf)
 	if err != nil {
-		logrus.Warn("Failed to read body: '%s'", err)
+		logrus.Warn("Failed to read body: '", err)
 		return err
 	}
 
 	req.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+
+	// Fix Body Size
+	bodySize := getBodySize(req, body)
+	req.Header.Set("Content-Length", strconv.FormatInt(bodySize, 10)) //len(dec)
+	req.ContentLength = bodySize
 
 	parser.Body = body
 	req.RequestURI = ""
@@ -60,6 +67,19 @@ func (parser *Parser) Init() error {
 	}
 
 	return nil
+}
+
+func getBodySize(request *http.Request, body []byte) int64 {
+	buf := &bytes.Buffer{}
+	nRead, err := io.Copy(buf, request.Body)
+	if err != nil {
+		logrus.Warn("Failed to copy body buffer: ", err)
+		return 0
+	}
+
+	request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+
+	return nRead
 }
 
 // Do sends the request via the parser HTTP Client and return the response
