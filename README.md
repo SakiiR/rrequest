@@ -30,3 +30,11 @@ Arguments:
 Download release here: [https://github.com/SakiiR/rrequest/releases](https://github.com/SakiiR/rrequest/releases)
 
 Copy the binary in a path within \$PATH: (e.g. `/usr/local/bin/rrequest`)
+
+## TODO
+
+* Parse Body Content
+  - JSON
+  - form-URL-encoded
+  - XML ?
+* Parse URL parameters 
