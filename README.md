@@ -38,3 +38,4 @@ Copy the binary in a path within \$PATH: (e.g. `/usr/local/bin/rrequest`)
   - form-URL-encoded
   - XML ?
 * Parse URL parameters 
+* Add a "request done count"
