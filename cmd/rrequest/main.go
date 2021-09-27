@@ -9,9 +9,9 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/SakiiR/ReduceRequest/internal/pkg/config"
-	rparser "github.com/SakiiR/ReduceRequest/internal/pkg/parser"
-	"github.com/SakiiR/ReduceRequest/internal/pkg/reducer"
+	"github.com/SakiiR/rrequest/internal/pkg/config"
+	rparser "github.com/SakiiR/rrequest/internal/pkg/parser"
+	"github.com/SakiiR/rrequest/internal/pkg/reducer"
 	"github.com/akamensky/argparse"
 )
 

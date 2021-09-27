@@ -8,7 +8,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/SakiiR/ReduceRequest/internal/pkg/parser"
+	"github.com/SakiiR/rrequest/internal/pkg/parser"
 )
 
 func reduceURIParameters(request *http.Request, parser *parser.Parser) http.Request {

@@ -12,7 +12,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/SakiiR/ReduceRequest/internal/pkg/config"
+	"github.com/SakiiR/rrequest/internal/pkg/config"
 )
 
 // Parser parser representation
